@@ -1,130 +1,155 @@
+console.log("Welcome to Sportify");
+//Initialize the variables
+let songIndex=0;
+let audioElement=new Audio('songs/1.mp3');
+let masterPlay=document.getElementById('masterPlay');
+let myProgessBar= document.getElementById('myprogressbar');
+let gif=document.getElementById('gif');
+let masterSongName=document.getElementById('masterSongName');
+let songItems=Array.from(document.getElementsByClassName('songitem'));
 
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+let songs=[
+    {songName:"Sukh karta Dukh Harta",filePath:"songs/1.mp3",coverPath:"covers/1.jpg"},
+    {songName:"Garuda Gamana Tava",filePath:"songs/2.mp3",coverPath:"covers/2.jpg"},
+    {songName:"Gan Ganapate namo namah",filePath:"songs/3.mp3",coverPath:"covers/3.jpg"},
+    {songName:"Anjaneyudu nivadu",filePath:"songs/4.mp3",coverPath:"covers/4.jpg"},
+    {songName:"Garuda Gamana Tava",filePath:"songs/2.mp3",coverPath:"covers/5.jpg"},
+    {songName:"Anjaneyudu nivadu",filePath:"songs/4.mp3",coverPath:"covers/6.jpg"},
+    {songName:"Sukh karta Dukh Harta",filePath:"songs/1.mp3",coverPath:"covers/7.jpg"},
+    {songName:"Garuda Gamana Tava",filePath:"songs/2.mp3",coverPath:"covers/8.jpg"},
+    {songName:"Gan Ganapate namo namah",filePath:"songs/3.mp3",coverPath:"covers/9.jpg"},
+    {songName:"Sukh karta Dukh Harta",filePath:"songs/1.mp3",coverPath:"covers/10.jpg"},
+]
+
+songItems.forEach((element,i) => {
+    element.getElementsByTagName("img")[0].src=songs[i].coverPath;
+    element.getElementsByClassName("songName")[0].innerText=songs[i].songName;
+});
 
 
-*{
-    margin: 0;
-    padding: 0;
 
+// audioElement.play();
 
-}
-body{
-    background-color: rgb(192, 171, 136);
-}
+//handle play/puase
+masterPlay.addEventListener('click',()=>{
+    const currentsongplay=document.getElementById(songIndex);
 
-nav{
-    font-family: 'Oswald', sans-serif;
-}
+    if(audioElement.paused || audioElement.currentTime<=0){
+        audioElement.play();
+        masterPlay.classList.remove('fa-circle-play');
+        masterPlay.classList.add('fa-circle-pause');
+        gif.style.opacity=1;
 
-nav ul{
-    display: flex;
-    align-items: center;
-    list-style-type: none;
-    height: 65px;
-    background-color: black;
-    color: white;
-}
+        makeAllPlays();
+        currentsongplay.classList.remove('fa-circle-play');
+        currentsongplay.classList.add('fa-circle-pause');
+    }
+    else{
+        audioElement.pause();
+        masterPlay.classList.remove('fa-circle-pause');
+        masterPlay.classList.add('fa-circle-play');
+        gif.style.opacity=0;
 
-nav ul li{
-    padding: 0 12px;
-}
+        currentsongplay.classList.remove('fa-circle-pause');
+        currentsongplay.classList.add('fa-circle-play');
 
-.brand img{
-    width: 44px;
-    padding: 0 8px;
+    }
+})
+//listen to Events
+
+audioElement.addEventListener('timeupdate',()=>{
     
-}
-.brand{
-    display: flex;
-    align-items: center;
-    font-weight: bolder;
-    font-size: 1.3rem;
-}
+    //update seekbar
+    progress = parseInt((audioElement.currentTime/audioElement.duration)*100);
+    myProgessBar.value=progress;
+})
 
-.container{
-    min-height: 65vh;
-    background-color: rgb(16, 14, 14);
-    color: white;
-    font-family: 'Varela Round',sans-serif;
-    display: flex;
-    width: 70%;
-    margin: 25px auto;
-    border-radius: 12px;
-    padding: 34px;
-    background-image: url('bg.jpg');
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-}
+myProgessBar.addEventListener('change',()=>{
+    audioElement.currentTime = myProgessBar.value * audioElement.duration/100
+})
 
-.bottom{
-    position: sticky;
-    height: 130px;
-    width: 100%;
-    background-color: black;
-    color: white;
-    bottom: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    
-
+const makeAllPlays=()=>{
+    Array.from(document.getElementsByClassName('songItemPlay')).forEach((element)=>{
+        element.classList.remove('fa-circle-pause');
+        element.classList.add('fa-circle-play');
+    })
 
 }
 
-.icons{
-    margin-top: 14px;
-    
-}
-.icons i{
-    cursor: pointer;
-}
+Array.from(document.getElementsByClassName('songItemPlay')).forEach((element)=>{
+    element.addEventListener('click',(e)=>{
+        console.log(e.target);
+        const indexclicked = parseInt(e.target.id);
+        if(songIndex==indexclicked && !audioElement.paused){
+           audioElement.pause();
+           e.target.classList.remove('fa-circle-pause');
+           e.target.classList.add('fa-circle-play');
+           masterPlay.classList.remove('fa-circle-pause');
+           masterPlay.classList.add('fa-circle-play');
+           gif.style.opacity=0;
 
-#myprogressbar{
-    width: 80vw;
-    cursor: pointer;
-    text-align: center;
-}
+        }
+        else{
+        makeAllPlays();
+        songIndex=parseInt(e.target.id);
+        e.target.classList.remove('fa-circle-play');
+        e.target.classList.add('fa-circle-pause');
+        audioElement.src=`songs/${songIndex+1}.mp3`;
+        masterSongName.innerText=songs[songIndex].songName;
+        audioElement.currentTime=0;
+        audioElement.play();
+        gif.style.opacity=1;
+        masterPlay.classList.remove('fa-circle-play');
+        masterPlay.classList.add('fa-circle-pause');
+        }
+    })
+})
 
-.songItemContainer{
-   margin-top: 74px; 
-}
+document.getElementById('next').addEventListener('click',()=>{
+    if(songIndex>=9){
 
+        songIndex=0;
+    }
+    else{
+        songIndex+=1;
+    }
 
-.songitem{
-    height: 50px;
-    display: flex;
-    background-color: white;
-    color: black;
-    margin: 12px 0;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 34px;
-}
+    audioElement.src=`songs/${songIndex+1}.mp3`;
+    masterSongName.innerText=songs[songIndex].songName;
+    audioElement.currentTime=0;
+    audioElement.play();
+    masterPlay.classList.remove('fa-circle-play');
+    masterPlay.classList.add('fa-circle-pause');
 
-.songitem img{
-    width: 43px;
-    margin: 0 23px;
-    border-radius: 34px;
-}
+    makeAllPlays();
+    const currentsongplay=document.getElementById(songIndex);
+    currentsongplay.classList.remove('fa-circle-play');
+    currentsongplay.classList.add('fa-circle-pause');
 
-.timestam{
-    margin: 0 23px;
-}
+    gif.style.opacity=1;
 
-.timestam i{
-    cursor: pointer;
-}
+})
 
-.songInfo{
-    font-family: 'Varela Round',sans-serif;
-    position: absolute;
-    left: 10vw;
-    
-}
+document.getElementById('previous').addEventListener('click',()=>{
+    if(songIndex<=0){
 
-.songInfo img{
-    opacity: 0;
-    transition: opacity 0.4s ease-in;
-}
+        songIndex=0;
+    }
+    else{
+        songIndex-=1;
+    }
+
+    audioElement.src=`songs/${songIndex+1}.mp3`;
+    masterSongName.innerText=songs[songIndex].songName;
+    audioElement.currentTime=0;
+    audioElement.play();
+    masterPlay.classList.remove('fa-circle-play');
+    masterPlay.classList.add('fa-circle-pause');
+
+    makeAllPlays();
+    const currentsongplay=document.getElementById(songIndex);
+    currentsongplay.classList.remove('fa-circle-play');
+    currentsongplay.classList.add('fa-circle-pause');
+
+    gif.style.opacity=1;
+})
